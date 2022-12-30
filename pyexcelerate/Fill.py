@@ -29,13 +29,11 @@ class Fill(object):
         return hash(self.background)
 
     def get_xml_string(self):
-        if not self.background:
-            return '<fill><patternFill patternType="none"/></fill>'
-        else:
-            return (
-                '<fill><patternFill patternType="solid"><fgColor rgb="%s"/></patternFill></fill>'
-                % self.background.hex
-            )
+        return (
+            f'<fill><patternFill patternType="solid"><fgColor rgb="{self.background.hex}"/></patternFill></fill>'
+            if self.background
+            else '<fill><patternFill patternType="none"/></fill>'
+        )
 
     def __or__(self, other):
         return Fill(
@@ -53,7 +51,7 @@ class Fill(object):
         )
 
     def __str__(self):
-        return "Fill: #%s" % self.background.hex
+        return f"Fill: #{self.background.hex}"
 
     def __repr__(self):
-        return "<%s>" % self.__str__()
+        return f"<{self.__str__()}>"

@@ -52,29 +52,25 @@ class Borders(object):
         tokens = ["<border>"]
         if self._left:
             tokens.append(
-                '<left style="%s"><color rgb="%s"/></left>'
-                % (self._left.style, self._left.color.hex)
+                f'<left style="{self._left.style}"><color rgb="{self._left.color.hex}"/></left>'
             )
         else:
             tokens.append("<left/>")
         if self._right:
             tokens.append(
-                '<right style="%s"><color rgb="%s"/></right>'
-                % (self._right.style, self._right.color.hex)
+                f'<right style="{self._right.style}"><color rgb="{self._right.color.hex}"/></right>'
             )
         else:
             tokens.append("<right/>")
         if self._top:
             tokens.append(
-                '<top style="%s"><color rgb="%s"/></top>'
-                % (self._top.style, self._top.color.hex)
+                f'<top style="{self._top.style}"><color rgb="{self._top.color.hex}"/></top>'
             )
         else:
             tokens.append("<top/>")
         if self._bottom:
             tokens.append(
-                '<bottom style="%s"><color rgb="%s"/></bottom>'
-                % (self._bottom.style, self._bottom.color.hex)
+                f'<bottom style="{self._bottom.style}"><color rgb="{self._bottom.color.hex}"/></bottom>'
             )
         else:
             tokens.append("<bottom/>")

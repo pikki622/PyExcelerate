@@ -114,4 +114,4 @@ class Alignment(object):
         return hash((self._horizontal, self._wrap_text))
 
     def __str__(self):
-        return "Align: %s %s %s" % (self._horizontal, self._vertical, self._rotation)
+        return f"Align: {self._horizontal} {self._vertical} {self._rotation}"

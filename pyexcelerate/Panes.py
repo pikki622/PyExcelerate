@@ -30,4 +30,4 @@ class Panes(object):
         if self.y:
             attrs["ySplit"] = self.y
         attr_str = " ".join('%s="%s"' % item for item in sorted(attrs.items()))
-        return to_unicode("<pane %s/>" % attr_str)
+        return to_unicode(f"<pane {attr_str}/>")

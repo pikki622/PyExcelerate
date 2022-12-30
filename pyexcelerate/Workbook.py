@@ -28,8 +28,7 @@ class Workbook(object):
         for sheet in self._worksheets:
             if sheet.name == worksheet.name:
                 raise Exception(
-                    "There is already a worksheet with the name '%s'. Duplicate worksheet names are not permitted."
-                    % worksheet.name
+                    f"There is already a worksheet with the name '{worksheet.name}'. Duplicate worksheet names are not permitted."
                 )
         self._worksheets.append(worksheet)
 
@@ -57,19 +56,18 @@ class Workbook(object):
 
     def get_xml_data(self):
         self._align_styles()  # because it will be used by the worksheets later
-        for index, ws in enumerate(self._worksheets, start=1):
-            yield (index, ws)
+        yield from enumerate(self._worksheets, start=1)
 
     def _align_styles(self):
         Utility.YOLO = True
         items = dict([(x, {}) for x in Workbook.STYLE_ATTRIBUTE_MAP.keys()])
         styles = {}
-        for index, style in enumerate(self._styles):
+        for style in self._styles:
             # compress style
             if not style.is_default:
                 styles[style] = styles.get(style, len(styles) + 1)
                 setattr(style, Workbook.STYLE_ID_ATTRIBUTE, styles[style])
-        for style in styles.keys():
+        for style in styles:
             # compress individual attributes
             for attr, attr_id in Workbook.STYLE_ATTRIBUTE_MAP.items():
                 obj = getattr(style, attr_id)

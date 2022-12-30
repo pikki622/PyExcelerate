@@ -126,9 +126,7 @@ class Range(object):
         def __getattr__(self, name):
             if self._attribute == "":
                 return Range.AttributeInterceptor(self._parent, name)
-            return Range.AttributeInterceptor(
-                self._parent, "%s.%s" % (self._attribute, name)
-            )
+            return Range.AttributeInterceptor(self._parent, f"{self._attribute}.{name}")
 
         def __setattr__(self, name, value):
             if isinstance(self._parent, Style.Style):
@@ -170,21 +168,18 @@ class Range(object):
             for cell in self:
                 cell.__set_attr(method, data)
         else:
-            if len(data) <= self.height:
-                for row in data:
-                    if len(row) > self.width:
-                        raise Exception(
-                            "Row too large for range, row has %s columns, but range only has %s"
-                            % (len(row), self.width)
-                        )
-                for x, row in enumerate(data):
-                    for y, value in enumerate(row):
-                        method(x + self._start[0], y + self._start[1], value)
-            else:
+            if len(data) > self.height:
                 raise Exception(
-                    "Too many rows for range, data has %s rows, but range only has %s"
-                    % (len(data), self.height)
+                    f"Too many rows for range, data has {len(data)} rows, but range only has {self.height}"
                 )
+            for row in data:
+                if len(row) > self.width:
+                    raise Exception(
+                        f"Row too large for range, row has {len(row)} columns, but range only has {self.width}"
+                    )
+            for x, row in enumerate(data):
+                for y, value in enumerate(row):
+                    method(x + self._start[0], y + self._start[1], value)
 
     def intersection(self, range):
         """
@@ -234,10 +229,7 @@ class Range(object):
         )
 
     def __len__(self):
-        if self._start[0] == self._end[0]:
-            return self.width
-        else:
-            return self.height
+        return self.width if self._start[0] == self._end[0] else self.height
 
     def __eq__(self, other):
         if other is None:
@@ -269,16 +261,13 @@ class Range(object):
     def string_to_coordinate(s):
         # Convert a base-26 name to a coordinate (or integer if column)
         col, num = RE_COLUMN_ROW.match(s).groups()
-        if num:
-            return (int(num), COLUMN2COORD[col])
-        else:
-            return COLUMN2COORD[col]
+        return (int(num), COLUMN2COORD[col]) if num else COLUMN2COORD[col]
 
     @staticmethod
     def coordinate_to_string(coord):
         # Convert a coordinate to a base-26 name
         row, col = coord
         try:
-            return "%s%s" % (COORD2COLUMN[col], row)
+            return f"{COORD2COLUMN[col]}{row}"
         except (IndexError, TypeError):
-            return "%s%s" % (COORD2COLUMN[256], row)
+            return f"{COORD2COLUMN[256]}{row}"

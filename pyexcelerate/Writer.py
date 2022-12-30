@@ -34,7 +34,7 @@ class Writer(object):
     def _render_template_wb(self, template, extra_context=None):
         context = {"workbook": self.workbook}
         if extra_context:
-            context.update(extra_context)
+            context |= extra_context
         return template.render(context).encode("utf-8")
 
     def _get_utc_now(self):
@@ -77,7 +77,7 @@ class Writer(object):
         for index, sheet in self.workbook.get_xml_data():
             sheetStream = self._worksheet_template.generate({"worksheet": sheet})
             try:
-                with zf.open("xl/worksheets/sheet%s.xml" % (index), mode="w", force_zip64=True) as f:
+                with zf.open(f"xl/worksheets/sheet{index}.xml", mode="w", force_zip64=True) as f:
                     for s in sheetStream:
                         f.write(s.encode("utf-8"))
             except RuntimeError as e:
@@ -87,6 +87,6 @@ class Writer(object):
                 for s in sheetStream:
                     tf.write(s.encode("utf-8"))
                 tf.close()
-                zf.write(tfn, "xl/worksheets/sheet%s.xml" % (index))
+                zf.write(tfn, f"xl/worksheets/sheet{index}.xml")
                 os.remove(tfn)
         zf.close()

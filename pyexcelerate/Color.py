@@ -15,13 +15,15 @@ class Color(object):
         return (self.a << 24) + (self.r << 16) + (self.g << 8) + (self.b)
 
     def __eq__(self, other):
-        if not other:
-            return False
         return (
-            self.r == other.r
-            and self.g == other.g
-            and self.b == other.b
-            and self.a == other.a
+            (
+                self.r == other.r
+                and self.g == other.g
+                and self.b == other.b
+                and self.a == other.a
+            )
+            if other
+            else False
         )
 
     def __str__(self):

@@ -46,9 +46,9 @@ if sys.maxunicode >= 0x10000:  # not narrow build
         ]
     )
 _illegal_ranges = [
-    "%s-%s" % (six.unichr(low), six.unichr(high)) for (low, high) in _illegal_unichrs
+    f"{six.unichr(low)}-{six.unichr(high)}" for (low, high) in _illegal_unichrs
 ]
-_illegal_xml_chars_RE = re.compile(u"[%s]" % u"".join(_illegal_ranges))
+_illegal_xml_chars_RE = re.compile(f'[{"".join(_illegal_ranges)}]')
 
 
 class Worksheet(object):
@@ -90,7 +90,7 @@ class Worksheet(object):
         if data is not None:
             # Iterate over the data to ensure we receive a copy of immutables.
             if isinstance(data, list):
-                self._dense_cells = [[] for i in range(len(data) + 1)]
+                self._dense_cells = [[] for _ in range(len(data) + 1)]
             for x, row in enumerate(data, 1):
                 if isinstance(row, list) and x < len(self._dense_cells):
                     self._dense_cells[x] = [None] + row[:]
@@ -101,17 +101,16 @@ class Worksheet(object):
                         self._columns = max(self._columns, y)
 
     def __getitem__(self, key):
-        if isinstance(key, slice):
-            if key.step is not None and key.step > 1:
-                raise Exception("PyExcelerate doesn't support slicing with steps")
-            else:
-                return Range.Range(
-                    (key.start or 1, 1), (key.stop or float("inf"), float("inf")), self
-                )
-        else:
+        if not isinstance(key, slice):
             return Range.Range(
                 (key, 1), (key, float("inf")), self
             )  # return a row range
+        if key.step is not None and key.step > 1:
+            raise Exception("PyExcelerate doesn't support slicing with steps")
+        else:
+            return Range.Range(
+                (key.start or 1, 1), (key.stop or float("inf"), float("inf")), self
+            )
 
     @property
     def panes(self):
@@ -237,15 +236,15 @@ class Worksheet(object):
                 z = '" t="e"><v>#DIV/0!</v></c>'
             else:
                 z = '"><v>%.15g</v></c>' % (cell)
-        elif type == DataTypes.INLINE_STRING or type == DataTypes.ERROR:
+        elif type in [DataTypes.INLINE_STRING, DataTypes.ERROR]:
             # Also serialize errors to string, we'll try our best...
             z = '" t="inlineStr"><is><t xml:space="preserve">%s</t></is></c>' % escape(
                 _illegal_xml_chars_RE.sub(u"\uFFFD", to_unicode(cell if isinstance(cell, six.string_types) else str(cell)))
             )
         elif type == DataTypes.DATE:
-            z = '"><v>%s</v></c>' % (DataTypes.to_excel_date(cell))
+            z = f'"><v>{DataTypes.to_excel_date(cell)}</v></c>'
         elif type == DataTypes.FORMULA:
-            z = '"><f>%s</f></c>' % (cell[1:])  # Remove equals sign.
+            z = f'"><f>{cell[1:]}</f></c>'
         elif type == DataTypes.BOOLEAN:
             z = '" t="b"><v>%d</v></c>' % (cell)
 
@@ -256,7 +255,7 @@ class Worksheet(object):
                 z,
             )
         else:
-            return '<c r="%s%s' % (Range.Range.coordinate_to_string((x, y)), z)
+            return f'<c r="{Range.Range.coordinate_to_string((x, y))}{z}'
 
     def get_col_xml_string(self, col):
         if col not in self._col_styles or self._col_styles[col].is_default:
@@ -266,10 +265,7 @@ class Worksheet(object):
             size = 0
 
             def get_size(v):
-                if isinstance(v, six.string_types):
-                    v = to_unicode(v)
-                else:
-                    v = six.text_type(v)
+                v = to_unicode(v) if isinstance(v, six.string_types) else six.text_type(v)
                 return (len(v) * 7 + 5) / 7
 
             for row in self._dense_cells[1:]:
@@ -300,45 +296,44 @@ class Worksheet(object):
         )
 
     def get_row_xml_string(self, row):
-        if row in self._row_styles and not self._row_styles[row].is_default:
-            style = self._row_styles[row]
-            if style.size == -1:
-                size = 0
-                dense_rows = (
-                    enumerate(self._dense_cells[row][1:])
-                    if row < len(self._dense_cells)
-                    else []
-                )
-                for y, cell in itertools.chain(
-                    dense_rows,
-                    six.iteritems(self._sparse_cells[row])
-                    if row in self._sparse_cells
-                    else [],
-                ):
-                    try:
-                        font_size = self._styles[row][y].font.size
-                    except:
-                        font_size = 11
-                    lines = (
-                        cell.count("\n")
-                        if DataTypes.get_type(style.size) == DataTypes.STRING
-                        else 1
-                    )
-                    size = max(font_size * (lines + 1) * 4 / 3, size)
-            else:
-                size = style.size if style.size else 15
-            return (
-                '<row r="%d" s="%d" customFormat="1" hidden="%d" customHeight="%d" ht="%f">'
-                % (
-                    row,
-                    style.id,
-                    1 if style.size == 0 else 0,  # hidden
-                    1 if style.size is not None else 0,  # customHeight
-                    size,
-                )
-            )
-        else:
+        if row not in self._row_styles or self._row_styles[row].is_default:
             return '<row r="%d">' % row
+        style = self._row_styles[row]
+        if style.size == -1:
+            size = 0
+            dense_rows = (
+                enumerate(self._dense_cells[row][1:])
+                if row < len(self._dense_cells)
+                else []
+            )
+            for y, cell in itertools.chain(
+                dense_rows,
+                six.iteritems(self._sparse_cells[row])
+                if row in self._sparse_cells
+                else [],
+            ):
+                try:
+                    font_size = self._styles[row][y].font.size
+                except:
+                    font_size = 11
+                lines = (
+                    cell.count("\n")
+                    if DataTypes.get_type(style.size) == DataTypes.STRING
+                    else 1
+                )
+                size = max(font_size * (lines + 1) * 4 / 3, size)
+        else:
+            size = style.size or 15
+        return (
+            '<row r="%d" s="%d" customFormat="1" hidden="%d" customHeight="%d" ht="%f">'
+            % (
+                row,
+                style.id,
+                1 if style.size == 0 else 0,  # hidden
+                1 if style.size is not None else 0,  # customHeight
+                size,
+            )
+        )
 
     def get_xml_data(self):
         # Precondition: styles are aligned. if not, then :v
@@ -369,6 +364,4 @@ class Worksheet(object):
 
     def get_auto_filter_xml_string(self):
         if self.auto_filter:
-            return '<autoFilter ref="{}"/>'.format(
-                Range.Range((1, 1), (self.num_rows, self.num_columns), self)
-            )
+            return f'<autoFilter ref="{Range.Range((1, 1), (self.num_rows, self.num_columns), self)}"/>'

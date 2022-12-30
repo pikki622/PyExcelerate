@@ -45,8 +45,8 @@ class Font(object):
         if self.strikethrough:
             tokens.append("<strike/>")
         if self._color:
-            tokens.append('<color rgb="%s"/>' % self._color.hex)
-        return "<font>%s</font>" % "".join(tokens)
+            tokens.append(f'<color rgb="{self._color.hex}"/>')
+        return f'<font>{"".join(tokens)}</font>'
 
     @property
     def color(self):
@@ -117,7 +117,7 @@ class Font(object):
             tokens.append("u")
         if self.strikethrough:
             tokens.append("s")
-        return "Font: %s" % " ".join(tokens)
+        return f'Font: {" ".join(tokens)}'
 
     def __repr__(self):
-        return "<%s>" % self.__str__()
+        return f"<{self.__str__()}>"

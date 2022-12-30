@@ -9,9 +9,3 @@ import nose
 
 def test_vs_xlsxwriter():
     raise nose.SkipTest("Skipping speed test")
-    ours = run_pyexcelerate_value_fastest()
-    theirs = run_xlsxwriter_value()
-    ok_(
-        ours / theirs <= 0.67,
-        msg="PyExcelerate is too slow! Better Excelerate it some more!",
-    )

@@ -76,21 +76,18 @@ class Style(object):
         # Precondition: Workbook._align_styles has been run.
         # Be careful when using this function as id's may be inaccurate if precondition not met.
         tag = []
-        if not self._format is None:
+        if self._format is not None:
             tag.append('numFmtId="%d"' % self._format.id)
-        if not self._font is None:
+        if self._font is not None:
             tag.append('applyFont="1" fontId="%d"' % (self._font.id))
-        if not self._fill is None:
+        if self._fill is not None:
             tag.append('applyFill="1" fillId="%d"' % (self._fill.id + 1))
-        if not self._borders is None:
+        if self._borders is not None:
             tag.append('applyBorder="1" borderId="%d"' % (self._borders.id))
         if self._alignment is None:
-            return '<xf xfId="0" %s/>' % (" ".join(tag))
+            return f'<xf xfId="0" {" ".join(tag)}/>'
         else:
-            return '<xf xfId="0"  %s applyAlignment="1">%s</xf>' % (
-                " ".join(tag),
-                self._alignment.get_xml_string(),
-            )
+            return f'<xf xfId="0"  {" ".join(tag)} applyAlignment="1">{self._alignment.get_xml_string()}</xf>'
 
     def __hash__(self):
         return hash((self._font, self._fill, self._format, self._alignment))
@@ -129,7 +126,7 @@ class Style(object):
         )
 
     def __str__(self):
-        return "%s %s %s %s" % (self.font, self.fill, self.format, self.alignment)
+        return f"{self.font} {self.fill} {self.format} {self.alignment}"
 
     def __repr__(self):
-        return "<%s>" % self.__str__()
+        return f"<{self.__str__()}>"

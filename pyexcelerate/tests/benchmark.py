@@ -252,20 +252,24 @@ def run_openpyxl_optimization():
     for col_idx in range(COLUMNS):
         col = openpyxl.utils.get_column_letter(col_idx + 1)
         for row in range(ROWS):
-            ws["%s%s" % (col, row + 1)].value = 1
+            ws[f"{col}{row + 1}"].value = 1
             if formatData[row][col_idx] & BOLD:
-                ws["%s%s" % (col, row + 1)].font = openpyxl.styles.Font(bold=True)
+                ws[f"{col}{row + 1}"].font = openpyxl.styles.Font(bold=True)
             if formatData[row][col_idx] & ITALIC:
-                ws["%s%s" % (col, row + 1)].font = openpyxl.styles.Font(italic=True)
+                ws[f"{col}{row + 1}"].font = openpyxl.styles.Font(italic=True)
             if formatData[row][col_idx] & UNDERLINE:
-                ws["%s%s" % (col, row + 1)].font = openpyxl.styles.Font(
+                ws[f"{col}{row + 1}"].font = openpyxl.styles.Font(
                     underline="single"
                 )
             if formatData[row][col_idx] & RED_BG:
-                ws["%s%s" % (col, row + 1)].fill = openpyxl.styles.PatternFill(
+                ws[f"{col}{row + 1}"].fill = openpyxl.styles.PatternFill(
                     fill_type=openpyxl.styles.fills.FILL_SOLID,
-                    start_color=openpyxl.styles.Color(openpyxl.styles.colors.RED),
-                    end_color=openpyxl.styles.Color(openpyxl.styles.colors.RED),
+                    start_color=openpyxl.styles.Color(
+                        openpyxl.styles.colors.RED
+                    ),
+                    end_color=openpyxl.styles.Color(
+                        openpyxl.styles.colors.RED
+                    ),
                 )
             ws["%s%s" % (col, row + 1)].value = 1
     wb.save(file)

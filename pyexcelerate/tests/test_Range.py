@@ -96,7 +96,7 @@ def test_range_equal_to_none():
     ws = wb.new_sheet("Test")
     r1 = Range("A1", "C3", ws)
     r2 = Range("B2", "D4", ws)
-    eq_(r1.intersection(r2) == None, False)
+    eq_(r1.intersection(r2) is None, False)
     ws2 = wb.new_sheet("test2")
     r3 = Range("A1", "C3", ws2)
     eq_(r1.intersection(r3), None)

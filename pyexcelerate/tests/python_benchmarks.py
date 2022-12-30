@@ -12,26 +12,21 @@ def test_benchmark():
     # attempt isinstance
 
     stime = time.clock()
-    for i in TRIALS:
+    for _ in TRIALS:
         answer = isinstance(integer, (int, float, long, complex))
         ok_(answer)
-    print("isinstance, %s" % (time.clock() - stime))
+    print(f"isinstance, {time.clock() - stime}")
 
     # attempt __class__
 
     stime = time.clock()
-    for i in TRIALS:
-        answer = integer.__class__ in set((int, float, long, complex))
+    for _ in TRIALS:
+        answer = integer.__class__ in {int, float, long, complex}
         ok_(answer)
-    print("__class__, set, %s" % (time.clock() - stime))
+    print(f"__class__, set, {time.clock() - stime}")
 
     stime = time.clock()
-    for i in TRIALS:
-        answer = (
-            integer.__class__ == int
-            or integer.__class__ == float
-            or integer.__class__ == long
-            or integer.__class__ == complex
-        )
+    answer = integer.__class__ in [int, float, long, complex]
+    for _ in TRIALS:
         ok_(answer)
-    print("__class__, or, %s" % (time.clock() - stime))
+    print(f"__class__, or, {time.clock() - stime}")
